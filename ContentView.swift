@@ -45,10 +45,18 @@ struct ContentView: View {
                                 Text(errorMessage)
                         }
                         .toolbar {
-                                Button {
-                                        startGame()
-                                } label: {
-                                        Text("New word")
+                                
+                                ToolbarItem(placement: .navigationBarLeading) {
+                                        Text("Score: \(score)")
+                                                .font(.headline)
+                                }
+                                
+                                ToolbarItem(placement: .navigationBarTrailing) {
+                                        Button {
+                                                startGame()
+                                        } label: {
+                                                Text("New Word")
+                                        }
                                 }
                         }
                         
@@ -60,33 +68,34 @@ struct ContentView: View {
                 guard answer.count > 0 else { return }
                 
                 guard isOriginal(word: answer) else {
-                        wordError(title: "Word used already", message: "Be more original!")
-                        return
+                        wordError(title: "Word used already", message: "Be more original! \nYour score: \(score)")
+                        return startGame()
                 }
                 
                 guard isPossible(word: answer) else {
-                        wordError(title: "Word not possible", message: "You cant spell that word from '\(rootWord)'")
-                        return
+                        wordError(title: "Word not possible", message: "You cant spell that word from '\(rootWord)' \nYour score: \(score)")
+                        return startGame()
                 }
                 
                 guard isReal(word: answer) else {
-                        wordError(title: "Word not recognized", message: "You cant just make them up!")
-                        return
+                        wordError(title: "Word not recognized", message: "You cant just make them up! \nYour score: \(score)")
+                        return startGame()
                 }
                 
                 guard !tooShort(word: answer) else {
-                        wordError(title: "Word is not allowed", message: "Word is too short")
-                        return
+                        wordError(title: "Word is not allowed", message: "Word is too short \nYour score: \(score)")
+                        return startGame()
                 }
                 
                 guard !isRootWord(word: answer) else {
-                        wordError(title: "Word is not allowed", message: "You cant use the Root Word")
-                        return
+                        wordError(title: "Word is not allowed", message: "You cant use the Root Word \nYour score: \(score)")
+                        return startGame()
                         
                 }
                 
                 withAnimation {
                         usedWords.insert(answer, at: 0)
+                        calculateScore(word: answer)
                 }
                 newWord = ""
         }
@@ -96,6 +105,15 @@ struct ContentView: View {
                         if let startWords = try? String(contentsOf: startWordsURL) {
                                 let allWords = startWords.components(separatedBy: "\n")
                                 rootWord = allWords.randomElement() ?? "silkworm"
+                                
+                                score = 0
+                                newWord = ""
+                                
+                                guard usedWords.isEmpty else {
+                                        usedWords.removeAll()
+                                        return
+                                }
+                                
                                 return
                         }
                 }
@@ -132,7 +150,7 @@ struct ContentView: View {
         
         func tooShort(word: String) -> Bool {
                 
-                if (word.count <= 3) {
+                if (word.count < 3) {
                         return true
                 }
                 
@@ -152,6 +170,10 @@ struct ContentView: View {
                 errorTitle = title
                 errorMessage = message
                 showingError = true
+        }
+        
+        func calculateScore(word: String) {
+                score += (word.count * 5)
         }
 }
 
