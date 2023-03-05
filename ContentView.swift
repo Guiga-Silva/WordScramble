@@ -44,6 +44,13 @@ struct ContentView: View {
                         } message: {
                                 Text(errorMessage)
                         }
+                        .toolbar {
+                                Button {
+                                        startGame()
+                                } label: {
+                                        Text("New word")
+                                }
+                        }
                         
                 }
         }
