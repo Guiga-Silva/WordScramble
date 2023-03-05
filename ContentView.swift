@@ -17,6 +17,8 @@ struct ContentView: View {
         @State private var errorMessage = ""
         @State private var showingError = false
         
+        @State private var score = 0
+        
         var body: some View {
                 NavigationView {
                         List {
@@ -42,6 +44,7 @@ struct ContentView: View {
                         } message: {
                                 Text(errorMessage)
                         }
+                        
                 }
         }
         
@@ -62,6 +65,17 @@ struct ContentView: View {
                 guard isReal(word: answer) else {
                         wordError(title: "Word not recognized", message: "You cant just make them up!")
                         return
+                }
+                
+                guard !tooShort(word: answer) else {
+                        wordError(title: "Word is not allowed", message: "Word is too short")
+                        return
+                }
+                
+                guard !isRootWord(word: answer) else {
+                        wordError(title: "Word is not allowed", message: "You cant use the Root Word")
+                        return
+                        
                 }
                 
                 withAnimation {
@@ -107,6 +121,24 @@ struct ContentView: View {
                 let misspelledRange = checker.rangeOfMisspelledWord(in: word, range: range, startingAt: 0, wrap: false, language: "en")
                 
                 return misspelledRange.location == NSNotFound
+        }
+        
+        func tooShort(word: String) -> Bool {
+                
+                if (word.count <= 3) {
+                        return true
+                }
+                
+                return false
+        }
+        
+        func isRootWord(word:String) -> Bool {
+                
+                if (word == rootWord) {
+                        return true
+                }
+                
+                return false
         }
         
         func wordError(title: String, message: String) {
